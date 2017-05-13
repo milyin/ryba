@@ -1,8 +1,14 @@
 <html>
   <head>
+    <title>
+      {{page.title}} - {{site.title}}
+    </title>
     <meta charset="utf-8" />
   </head>
   <body>
+    <div id="menu">
+      
+    </div>
     {{ __tera_context }}
     <br/>
     <a href="/register">Register</a>

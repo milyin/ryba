@@ -8,12 +8,14 @@ extern crate rocket;
 extern crate serde;
 #[macro_use] extern crate serde_derive;
 
+mod context;
+
 use ryba_kit::form::*;
 use serde::ser::Serialize;
-use ryba_kit::context;
 use rocket_contrib::Template;
 use rocket::request::Form;
 use rocket::response::Redirect;
+use context::Context;
 
 // TODO: allow only own urls
 #[derive(FromForm)]
@@ -27,22 +29,22 @@ ryba_form! { form: Login () ctx: LoginCtx  {
 } () }
 
 #[get("/login?<backurl>")]
-fn login(backurl: OwnUrl, req: context::Request) -> Template {
+fn login(backurl: OwnUrl, req: ryba_kit::context::Request) -> Template {
     let _unused = backurl;
     let login = Login::default();
     let login_ctx = LoginCtx::validate(&login);
-    Template::render("login", &context::form(req,&login_ctx))
+    Template::render("login", &ryba_kit::context::form(req,&login_ctx))
 }
 
 #[post("/login?<backurl>", data="<login_form>")]
-fn login_post(backurl: OwnUrl, login_form: Form<Login>, req: context::Request) -> Result<Redirect,Template> {
+fn login_post(backurl: OwnUrl, login_form: Form<Login>, req: ryba_kit::context::Request) -> Result<Redirect,Template> {
     let login = login_form.get();
     let login_ctx = LoginCtx::validate(login);
     if login_ctx.is_ok() &&
         login.name == "foo".to_string() && login.password == "bar".to_string() {
         Ok(Redirect::to(&backurl.url))
     } else {
-        Err(Template::render("login",&context::form(req,&login_ctx)))
+        Err(Template::render("login",&ryba_kit::context::form(req,&login_ctx)))
     }
 }
 
@@ -60,26 +62,27 @@ ryba_form! {
 }
 
 #[get("/register")]
-fn register(req: context::Request) -> Template {
+fn register(req: ryba_kit::context::Request) -> Template {
     let frm = Register::default();
     let ctx = RegisterCtx::validate(&frm,"foo");
-    Template::render("register", &context::form(req,&ctx))
+    Template::render("register", &ryba_kit::context::form(req,&ctx))
 }
 
 #[post("/register", data="<form>")]
-fn register_post(form: Form<Register>, req: context::Request) -> Result<Redirect,Template> {
+fn register_post(form: Form<Register>, req: ryba_kit::context::Request) -> Result<Redirect,Template> {
     let frm = form.get();
     let ctx = RegisterCtx::validate(frm,"foo");
     if ctx.is_ok() {
         Ok(Redirect::to("/"))
     } else {
-        Err(Template::render("register",&context::form(req,&ctx)))
+        Err(Template::render("register",&ryba_kit::context::form(req,&ctx)))
     }
 }
 
 #[get("/")]
-fn index(req : context::Request) -> Template {
-    Template::render("index", &context::simple(req))
+fn index(mut ctx : Context<()>) -> Template {
+    ctx.page.title = "root page".to_string();
+    Template::render("index", &ctx)
 }
 
 fn main() {
