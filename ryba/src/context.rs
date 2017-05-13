@@ -2,39 +2,53 @@ use ryba_kit::context;
 use serde::ser::Serialize;
 use rocket;
 use rocket::request::{self, FromRequest};
+use rocket_contrib::Template;
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct Site {
     pub title: &'static str
 }
 
-#[derive(Serialize)]
-pub struct Page<F> where F: Serialize {
-    pub form: Option<F>,
+#[derive(Serialize, Default)]
+pub struct Page {
     pub title: String
 }
 
-#[derive(Serialize)]
-pub struct Context<F> where F: Serialize {
+#[derive(Serialize, Default)]
+pub struct Context {
     pub req: Option<context::Request>,
     pub site: Site,
-    pub page: Page<F>
+    pub page: Page
 }
 
-impl <'a, 'r, F> FromRequest<'a,'r> for Context<F> where F: Serialize
+impl <'a, 'r> FromRequest<'a,'r> for Context
 {
     type Error = ();
     fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error>
     {
-        rocket::Outcome::Success(Context {
-            req: context::Request::from_request(request).succeeded(),
-            site : Site {
-                title: ""
-            },
-            page: Page {
-                form: None,
-                title: "".to_string()
-            }
-        })
+        let mut ctx = Context::default();
+        ctx.req = context::Request::from_request(request).succeeded();
+        rocket::Outcome::Success(ctx)
     }
+}
+
+#[derive(Serialize)]
+pub struct Root<'a, F> where F : 'a + Serialize {
+    req: &'a Option<context::Request>,
+    site: &'a Site,
+    page: &'a Page,
+    form: &'a F
+}
+
+pub fn render_with_form<F>(name: &'static str, ctx: &Context, form: &F) -> Template where F: Serialize {
+    Template::render(name, &Root::<F> {
+        req: &ctx.req,
+        site: &ctx.site,
+        page: &ctx.page,
+        form: form
+    } )
+}
+
+pub fn render(name: &'static str, ctx: &Context) -> Template {
+    render_with_form(name,ctx,&())
 }
