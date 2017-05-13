@@ -1,0 +1,10 @@
+[package]
+name = "ryba-kit"
+version = "0.1.0"
+authors = ["Michael.Ilyin <milyin@gmail.com>"]
+
+[dependencies]
+serde="1.0"
+serde_derive="1.0"
+rocket = { git = "https://github.com/SergioBenitez/Rocket" }
+rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
