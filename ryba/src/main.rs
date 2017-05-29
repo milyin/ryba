@@ -1,4 +1,4 @@
-#![feature(plugin, custom_derive)]
+#![feature(plugin, custom_derive, closure_to_fn_coercion)]
 #![plugin(rocket_codegen)]
 #[macro_use]
 
@@ -10,12 +10,12 @@ extern crate serde;
 
 mod context;
 
-use rocket_contrib::Template;
 use ryba_kit::form::*;
 use serde::ser::Serialize;
 use rocket::request::Form;
 use rocket::response::Redirect;
 use context::*;
+use ryba_kit::template::*;
 
 // TODO: allow only own urls
 #[derive(FromForm)]
@@ -76,10 +76,20 @@ fn register_post(ctx: Context, data: Form<Register>) -> Result<Redirect,Template
 
 #[get("/")]
 fn index(mut ctx : Context) -> Template {
-    ctx.page.title = "root page".to_string();
+    ctx.page.set_title("root page");
     render("index", &ctx)
 }
 
+#[get("/hbs")]
+fn hbs(mut ctx : Context) -> Template {
+    ctx.page.set_layout("layout");
+    ctx.page.set_title("root page".to_string());
+    render("index", &ctx)
+}
+
+
 fn main() {
-    rocket::ignite().mount("/", routes![index, login, login_post, register, register_post]).launch();
+    init_handlebars(|hb| {});
+    add_templates("templates").expect("Failed to read templates");
+    rocket::ignite().mount("/", routes![index, login, login_post, register, register_post, hbs]).launch();
 }

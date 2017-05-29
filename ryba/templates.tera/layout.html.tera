@@ -1,0 +1,28 @@
+{% import "components" as c %}
+
+<html>
+  <head>
+    <title>
+      {{page.title}} - {{site.title}}
+    </title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <div id="menu">
+      {% set q="Hello" %}
+      {% set p = c::hello() %}
+      {% set r = c::concat(a="a", b="b") %}
+      {{ c::menuitem(label="Login", href={q} }}
+      {# { c::menuitem(label="Login", href=c::concat(a="/login?url=",b=req.uri)) } #}
+      {{ c::menuitem(label="Register", href="") }}
+    </div>
+    <div class="debug">
+      {{ __tera_context }}
+    </div>
+    <div id="content">
+     {% block body %}
+     Lorem ipsum....
+     {% endblock body %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+{{#*inline "foo"}}
+FOO {{q}}
+{{/inline}}
+
+{{#*inline "dump"}}
+<ul>
+  {{q}}
+
+{{#with q}}
+  layout: {{layout}} <br>
+  title: {{title}}
+{{/with}}
+
+    {{#each q}}
+      <li>
+        {{@key}}: {{this}}
+        {{!~> dump q=this}}
+      </li>
+    {{/each}}
+</ul>
+{{/inline}}
+
+{{#*inline "dump1"}}
+{{q}}
+{{#with q}}
+{{#if this}}
+{{this}}
+{{/if}}
+{{/with}}
+{{/inline}}
+
+
+<html>
+  <body>
+
+    <hr/>
+      {{!~> dump1 q=page.layout}}
+      {{#with page.layout}}
+      {{this}}
+      {{else}}
+      q
+      {{/with}}
+
+      {{#with page}}
+      {{this}}
+      {{else}}
+      q
+      {{/with}}
+
+      {{#with form}}
+      {{this}}
+      {{else}}
+      q
+      {{/with}}
+
+
+    <hr/>
+
+    Base design
+      {{~> page}}
+
+      {{~> foo q="abc"}}
+  </body>
+</html>

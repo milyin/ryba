@@ -2,16 +2,33 @@ use ryba_kit::context;
 use serde::ser::Serialize;
 use rocket;
 use rocket::request::{self, FromRequest};
-use rocket_contrib::Template;
+use std::borrow::Cow;
+use ryba_kit::template::*;
+
+macro_rules! cow_setter { ($field:ident, $setter:ident) => (
+    pub fn $setter<S>(&mut self, s: S) where S: Into<Cow<'static,str>> {
+        self.$field = s.into();
+    }
+)}
 
 #[derive(Serialize, Default)]
 pub struct Site {
-    pub title: &'static str
+    pub title: Cow<'static, str>
+}
+
+impl Site {
+    cow_setter!(title, set_title);
 }
 
 #[derive(Serialize, Default)]
 pub struct Page {
-    pub title: String
+    pub layout: Cow<'static,str>,
+    pub title: Cow<'static,str>,
+}
+
+impl Page {
+    cow_setter!(layout, set_layout);
+    cow_setter!(title, set_title);
 }
 
 #[derive(Serialize, Default)]

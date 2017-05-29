@@ -4,12 +4,15 @@ version = "0.1.0"
 authors = ["Michael.Ilyin <milyin@gmail.com>"]
 
 [dependencies]
-serde="1.0"
-serde_derive="1.0"
+serde="*"
+serde_derive="*"
 ryba-kit = { path = "../ryba-kit" }
-rocket = { git = "https://github.com/SergioBenitez/Rocket" }
-rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
+rocket = "0.2.7"
+rocket_codegen = "0.2.7"
+#rocket = { git = "https://github.com/SergioBenitez/Rocket" }
+#rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
 
 [dependencies.rocket_contrib]
-git = "https://github.com/SergioBenitez/Rocket"
-features = ["tera_templates"]
+version = "0.2.7"
+#git = "https://github.com/SergioBenitez/Rocket"
+#features = ["handlebars_templates", "tera_templates"]

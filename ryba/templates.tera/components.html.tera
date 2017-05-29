@@ -1,0 +1,8 @@
+{% macro hello() %}Hello{% endmacro hello %}
+
+{% macro concat(a, b) %}{{a}}{{b}}{% endmacro concat %}
+
+{% macro menuitem(label, href) %}
+  <a href="{{href}}" class="menuitem">{{label}}</a>
+  {# <a href="{% for i in href %}{{i}}{% endfor %}" class="menuitem">{{label}}</a> #}
+{% endmacro menuitem %}
