@@ -39,7 +39,10 @@ pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf
         let ext = stripped.extension().ok_or("no type extension")?; // skip if no .html or smth else
         let name: String = stripped.with_extension("").to_str().ok_or("can't convert path to string")?
             .chars().filter_map(|c| Some(if c=='\\' {'/'} else {c})).collect();
+        println!("{}",&name);
         if let Err(e) = hb.register_template_file(&name,&entry) {
+            // TODO: make correct error loagging
+            println!("{} {}",&name, &e);
             error!("Error in Handlebars template {}", &name);
             info!("{}", e);
             info!("Template path: '{}'", entry.to_string_lossy());
@@ -51,36 +54,8 @@ pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf
         let _ = add_template(&entry);
     });
 
-
-
-/*    for entry in glob(mask).unwrap().filter_map(Result::ok) {
-        let path : PathBuf = entry.into();
-        path.strip_prefix()
-*/        
-/*
-        entry.file_stem().and_then(|without_hbs_ext| {
-            let path : PathBuf = without_hbs_ext.into();
-            let name = path.file_stem();
-            let ext = path.extension();
-            name.and_then(|tmpl_name| {
-                println!("{:?} {:?}", tmpl_name, ext);
-                Some(())
-            })
-        });*/
     Result::Ok(())
 }
-
-/*
-lazy_static! {
-    static ref HANDLEBARS: Mutex<Handlebars> = Mutex::new({
-        let mut hb = Handlebars::new();
-        for entry in glob("templates/**/*.hbs").unwrap().filter_map(Result::ok) {
-            println!("{:?}", entry);
-        }
-        hb
-    });
-}
-*/
 
 impl Template {
     pub fn render<S, C>(name: S, context: C) -> Template

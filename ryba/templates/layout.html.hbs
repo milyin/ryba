@@ -1,64 +1,31 @@
-{{#*inline "foo"}}
-FOO {{q}}
-{{/inline}}
-
-{{#*inline "dump"}}
-<ul>
-  {{q}}
-
-{{#with q}}
-  layout: {{layout}} <br>
-  title: {{title}}
-{{/with}}
-
-    {{#each q}}
-      <li>
-        {{@key}}: {{this}}
-        {{!~> dump q=this}}
-      </li>
+{{#*inline "dump_context"}}
+  {{#if_object this}}
+  <ul>
+    {{#each this}}
+    <li>
+      {{@key}}: {{>dump}}
+    </li>
     {{/each}}
-</ul>
+  </ul>
+  {{/if_object}}
+  {{#if_array this}}
+    {{#each this}}
+    <li>
+      {{@index}}: {{>dump_context}}
+    </li>
+    {{/each}}
+  {{/if_array}}
+  {{#if_string this}} "{{this}}" {{/if_string}}
+  {{#if_number this}} {{this}} {{/if_number}}
 {{/inline}}
 
-{{#*inline "dump1"}}
-{{q}}
-{{#with q}}
-{{#if this}}
-{{this}}
-{{/if}}
-{{/with}}
-{{/inline}}
-
+{{include "macro"}}
 
 <html>
   <body>
-
-    <hr/>
-      {{!~> dump1 q=page.layout}}
-      {{#with page.layout}}
-      {{this}}
-      {{else}}
-      q
-      {{/with}}
-
-      {{#with page}}
-      {{this}}
-      {{else}}
-      q
-      {{/with}}
-
-      {{#with form}}
-      {{this}}
-      {{else}}
-      q
-      {{/with}}
-
-
-    <hr/>
-
-    Base design
+      <hr/>
+      {{>dump_context}}
+      <hr/>
       {{~> page}}
-
-      {{~> foo q="abc"}}
   </body>
 </html>

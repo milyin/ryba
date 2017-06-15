@@ -6,6 +6,7 @@ extern crate ryba_kit;
 extern crate rocket_contrib;
 extern crate rocket;
 extern crate serde;
+extern crate handlebars;
 #[macro_use] extern crate serde_derive;
 
 mod context;
@@ -16,10 +17,13 @@ use rocket::request::Form;
 use rocket::response::Redirect;
 use context::*;
 use ryba_kit::template::*;
+use ryba_kit::helpers::*;
+use handlebars::{Handlebars, Renderable, RenderError, RenderContext, Helper, JsonRender, to_json};
 
 // TODO: allow only own urls
 #[derive(FromForm)]
 struct OwnUrl {
+    show_context: Option<bool>,
     url: String
 }
 
@@ -80,16 +84,15 @@ fn index(mut ctx : Context) -> Template {
     render("index", &ctx)
 }
 
-#[get("/hbs")]
-fn hbs(mut ctx : Context) -> Template {
+#[get("/hbs?<test>")]
+fn hbs(mut ctx : Context, test: OwnUrl ) -> Template {
     ctx.page.set_layout("layout");
     ctx.page.set_title("root page".to_string());
     render("index", &ctx)
 }
 
-
 fn main() {
-    init_handlebars(|hb| {});
+    init_handlebars(add_helpers);
     add_templates("templates").expect("Failed to read templates");
     rocket::ignite().mount("/", routes![index, login, login_post, register, register_post, hbs]).launch();
 }

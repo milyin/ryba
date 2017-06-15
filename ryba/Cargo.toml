@@ -7,12 +7,13 @@ authors = ["Michael.Ilyin <milyin@gmail.com>"]
 serde="*"
 serde_derive="*"
 ryba-kit = { path = "../ryba-kit" }
-rocket = "0.2.7"
-rocket_codegen = "0.2.7"
+rocket = "0.2.8"
+rocket_codegen = "0.2.8"
+handlebars="*"
 #rocket = { git = "https://github.com/SergioBenitez/Rocket" }
 #rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
 
 [dependencies.rocket_contrib]
-version = "0.2.7"
+version = "0.2.8"
 #git = "https://github.com/SergioBenitez/Rocket"
 #features = ["handlebars_templates", "tera_templates"]

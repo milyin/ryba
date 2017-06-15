@@ -4,7 +4,7 @@ use serde::ser::Serialize;
 
 #[derive(Serialize)]
 pub struct Request {
-    uri: String
+    uri: String,
 }
 
 #[derive(Serialize)]
