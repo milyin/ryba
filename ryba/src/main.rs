@@ -1,8 +1,7 @@
-#![feature(plugin, custom_derive, closure_to_fn_coercion, use_extern_macros, decl_macro)]
+#![feature(plugin, custom_derive, use_extern_macros, decl_macro)]
 #![plugin(rocket_codegen)]
-#[macro_use]
 
-#[macro_use] extern crate ryba_kit;
+extern crate ryba_kit;
 extern crate rocket_contrib;
 extern crate rocket;
 extern crate serde;
@@ -12,7 +11,6 @@ extern crate handlebars;
 mod context;
 
 use ryba_kit::form::*;
-use serde::ser::Serialize;
 use rocket::request::{Form, FromForm};
 use rocket::response::Redirect;
 use context::*;

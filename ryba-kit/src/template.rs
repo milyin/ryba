@@ -7,7 +7,7 @@ use std::error::Error;
 use std::borrow::Cow;
 use serde_json::{Value, to_value};
 use rocket::response::{self, Content, Responder};
-use rocket::http::{ContentType, Status};
+use rocket::http::ContentType;
 use serde::ser::Serialize;
 
 #[derive(Debug)]
@@ -36,7 +36,7 @@ pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf
 
     let add_template = &mut |entry : &Path| -> Result<(),Box<Error>> {
         let stripped  = entry.strip_prefix(&root_buf)?.with_extension(""); // strip prefix and .hbs
-        let ext = stripped.extension().ok_or("no type extension")?; // skip if no .html or smth else
+        //let ext = stripped.extension().ok_or("no type extension")?; // skip if no .html or smth else
         let name: String = stripped.with_extension("").to_str().ok_or("can't convert path to string")?
             .chars().filter_map(|c| Some(if c=='\\' {'/'} else {c})).collect();
         println!("{}",&name);
@@ -67,7 +67,7 @@ impl Template {
 
 impl Responder<'static> for Template {
     fn respond(self) -> response::Result<'static> {
-        let mut hb = HANDLEBARS.lock().unwrap();
+        let hb = HANDLEBARS.lock().unwrap();
         let render = hb.render(&self.name, &self.value);
         Content(ContentType::HTML, render).respond()
     }
