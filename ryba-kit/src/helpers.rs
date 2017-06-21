@@ -1,5 +1,5 @@
 use handlebars::*;
-use serde_json::value::{Value, from_value};
+use serde_json::value::Value;
 use serde_json::Map;
 
 #[derive(PartialEq)]
