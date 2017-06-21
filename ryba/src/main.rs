@@ -1,8 +1,8 @@
-#![feature(plugin, custom_derive, closure_to_fn_coercion)]
+#![feature(plugin, custom_derive, closure_to_fn_coercion, use_extern_macros, decl_macro)]
 #![plugin(rocket_codegen)]
 #[macro_use]
 
-extern crate ryba_kit;
+#[macro_use] extern crate ryba_kit;
 extern crate rocket_contrib;
 extern crate rocket;
 extern crate serde;
@@ -13,12 +13,14 @@ mod context;
 
 use ryba_kit::form::*;
 use serde::ser::Serialize;
-use rocket::request::Form;
+use rocket::request::{Form, FromForm};
 use rocket::response::Redirect;
 use context::*;
 use ryba_kit::template::*;
 use ryba_kit::helpers::*;
 use handlebars::{Handlebars, Renderable, RenderError, RenderContext, Helper, JsonRender, to_json};
+
+/*
 
 // TODO: allow only own urls
 #[derive(FromForm)]
@@ -77,22 +79,34 @@ fn register_post(ctx: Context, data: Form<Register>) -> Result<Redirect,Template
         Err(render_with_form("register", &ctx, &form))
     }
 }
+*/
 
-#[get("/")]
-fn index(mut ctx : Context) -> Template {
-    ctx.page.set_title("root page");
-    render("index", &ctx)
+#[derive(Serialize,FromForm,Default)]
+struct Register<'v> {
+    name: Field<'v,  String>,
+    password: Field<'v, String>,
 }
 
+#[get("/")]
+fn index(req : Req) -> Template {
+    let form = Register::default();
+    let mut ctx = Context::new(req, &form);
+    ctx.page.title = "root page".into();
+    ctx.site.title = "site title".into();
+    Template::render("index", &ctx)
+}
+
+/*
 #[get("/hbs?<test>")]
 fn hbs(mut ctx : Context, test: OwnUrl ) -> Template {
     ctx.page.set_layout("layout");
     ctx.page.set_title("root page".to_string());
     render("index", &ctx)
 }
+*/
 
 fn main() {
     init_handlebars(add_helpers);
     add_templates("templates").expect("Failed to read templates");
-    rocket::ignite().mount("/", routes![index, login, login_post, register, register_post, hbs]).launch();
+    rocket::ignite().mount("/", routes![index]).launch();
 }

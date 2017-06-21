@@ -1,24 +1,3 @@
-{{#*inline "dump_context"}}
-  {{#if_object this}}
-  <ul>
-    {{#each this}}
-    <li>
-      {{@key}}: {{>dump}}
-    </li>
-    {{/each}}
-  </ul>
-  {{/if_object}}
-  {{#if_array this}}
-    {{#each this}}
-    <li>
-      {{@index}}: {{>dump_context}}
-    </li>
-    {{/each}}
-  {{/if_array}}
-  {{#if_string this}} "{{this}}" {{/if_string}}
-  {{#if_number this}} {{this}} {{/if_number}}
-{{/inline}}
-
 {{include "macro"}}
 
 <html>

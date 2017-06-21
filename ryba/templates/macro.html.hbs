@@ -1,3 +1,5 @@
+{{*annotate}}
+
 {{#*inline "foo"}}
 FOO {{q}}
 {{/inline}}
@@ -7,7 +9,7 @@ FOO {{q}}
   <ul>
     {{#each this}}
     <li>
-      {{@key}}: {{>dump}}
+      {{@key}}: {{>dump_context}}
     </li>
     {{/each}}
   </ul>

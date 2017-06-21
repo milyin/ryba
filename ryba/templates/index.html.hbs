@@ -1,8 +1,26 @@
-{{#*inline "page"}}
-  <p>Rendered in partial {{page.layout}}</p>
-
-In: {{~> foo q="in"}}
+{{#*inline "test"}}
+{{v}} 
+{{#get_path v "@name"}}
+is {{@name}}
+{{/get_path}}
 
 {{/inline}}
 
-{{~> (page.layout)~}}
+{{#*inline "page"}}
+<p>Rendered in partial {{layout}}</p>
+
+In: {{> foo q="in"}}
+
+<hr/>
+{{#get_path_leaf form.password "@name"}}
+{{#get_path form.password "@full_name"}}
+name={{@name}} full_name={{@full_name}}
+{{/get_path}}
+{{/get_path_leaf}}
+<hr/>
+
+{{> test v=page.title}}
+
+{{/inline}}
+
+{{~> (layout)~}}

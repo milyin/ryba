@@ -1,3 +1,5 @@
+#![feature(decl_macro)]
+
 extern crate serde;
 extern crate rocket;
 #[macro_use] extern crate serde_derive;
@@ -9,6 +11,5 @@ extern crate glob;
 extern crate serde_json;
 
 pub mod form;
-pub mod context;
 pub mod template;
 pub mod helpers;
