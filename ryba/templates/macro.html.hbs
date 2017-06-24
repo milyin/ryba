@@ -36,7 +36,7 @@
     {{#with site.login}}
       {{>input label="Name" field=name}}
       {{>input label="Password" field=password type="password"}}
-      {{>input field=redirect}}
+      {{>input field=redirect type="hidden"}}
     {{/with}}
     <input type="submit"/>
   </form>
