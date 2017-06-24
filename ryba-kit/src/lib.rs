@@ -1,13 +1,15 @@
-#![feature(decl_macro)]
+#![feature(decl_macro, never_type)]
 
 extern crate serde;
 extern crate rocket;
 extern crate serde_derive;
 extern crate handlebars;
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 extern crate glob;
 extern crate itertools;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate serde_json;
 
 pub mod form;

@@ -1,5 +1,5 @@
 use handlebars::Handlebars;
-use std::path::{Path,PathBuf};
+use std::path::{Path, PathBuf};
 use glob::glob;
 use std::sync::Mutex;
 use itertools::Itertools;
@@ -13,7 +13,7 @@ use serde::ser::Serialize;
 #[derive(Debug)]
 pub struct Template {
     name: Cow<'static, str>,
-    value: Option<Value>
+    value: Option<Value>,
 }
 
 lazy_static! {
@@ -25,7 +25,8 @@ pub fn init_handlebars(f: fn(&mut Handlebars)) {
     f(&mut hb)
 }
 
-pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf>
+pub fn add_templates<P>(root: P) -> Result<(), Box<Error>>
+    where P: Into<PathBuf>
 {
     let mut hb = HANDLEBARS.lock().unwrap();
     let root_buf = root.into();
@@ -34,15 +35,20 @@ pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf
     mask_buf.push("*.hbs");
     let mask = mask_buf.to_str().ok_or("read error")?;
 
-    let add_template = &mut |entry : &Path| -> Result<(),Box<Error>> {
-        let stripped  = entry.strip_prefix(&root_buf)?.with_extension(""); // strip prefix and .hbs
+    let add_template = &mut |entry: &Path| -> Result<(), Box<Error>> {
+        let stripped = entry.strip_prefix(&root_buf)?.with_extension(""); // strip prefix and .hbs
         //let ext = stripped.extension().ok_or("no type extension")?; // skip if no .html or smth else
-        let name: String = stripped.with_extension("").to_str().ok_or("can't convert path to string")?
-            .chars().filter_map(|c| Some(if c=='\\' {'/'} else {c})).collect();
-        println!("{}",&name);
-        if let Err(e) = hb.register_template_file(&name,&entry) {
+        let name: String = stripped
+            .with_extension("")
+            .to_str()
+            .ok_or("can't convert path to string")?
+            .chars()
+            .filter_map(|c| Some(if c == '\\' { '/' } else { c }))
+            .collect();
+        println!("{}", &name);
+        if let Err(e) = hb.register_template_file(&name, &entry) {
             // TODO: make correct error loagging
-            println!("{} {}",&name, &e);
+            println!("{} {}", &name, &e);
             error!("Error in Handlebars template {}", &name);
             info!("{}", e);
             info!("Template path: '{}'", entry.to_string_lossy());
@@ -50,18 +56,23 @@ pub fn add_templates<P>(root: P) -> Result<(),Box<Error>> where P : Into<PathBuf
         Ok(())
     };
 
-    glob(mask).unwrap().filter_map(Result::ok).foreach(|entry| {
-        let _ = add_template(&entry);
-    });
+    glob(mask)
+        .unwrap()
+        .filter_map(Result::ok)
+        .foreach(|entry| { let _ = add_template(&entry); });
 
     Result::Ok(())
 }
 
 impl Template {
     pub fn render<S, C>(name: S, context: C) -> Template
-        where S: Into<Cow<'static, str>>, C: Serialize
+        where S: Into<Cow<'static, str>>,
+              C: Serialize
     {
-        Template { name: name.into(), value: to_value(context).ok() }
+        Template {
+            name: name.into(),
+            value: to_value(context).ok(),
+        }
     }
 }
 

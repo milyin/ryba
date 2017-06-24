@@ -1,0 +1,15 @@
+{{#*inline "page"}}
+
+<form method="post">
+    {{#with page.form}}
+        {{>input label="Name" field=name}}
+        {{>input label="Age" field=age}}
+        {{>input label="Password" field=password type="password"}}
+        {{>input label="Repeat password" field=password1 type="password"}}
+    {{/with}}
+    <input type="submit"/>
+</form>
+
+{{/inline}}
+
+{{~> (site.layout)~}}

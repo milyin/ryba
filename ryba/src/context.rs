@@ -1,15 +1,27 @@
 use serde::ser::Serialize;
 use rocket;
 use rocket::request::{self, FromRequest};
+use ryba_kit::form::Field;
+
+#[derive(Serialize, Default)]
+pub struct Form<F>
+    where F: Serialize + Default
+{
+    pub msg: String,
+    pub fields: F,
+}
+
+#[derive(Serialize,FromForm,Default)]
+pub struct Login {
+    name: Field<String>,
+    password: Field<String>,
+}
 
 #[derive(Serialize, Default)]
 pub struct Site {
     pub title: String,
-}
-
-#[derive(Serialize, Default)]
-pub struct Page {
-    pub title: String,
+    pub login: Form<Login>,
+    pub layout: &'static str,
 }
 
 #[derive(Serialize)]
@@ -17,34 +29,33 @@ pub struct Req {
     pub uri: String,
 }
 
-impl <'a, 'r> FromRequest<'a,'r> for Req
-{
+impl<'a, 'r> FromRequest<'a, 'r> for Req {
     type Error = ();
-    fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error>
-    {
-        rocket::Outcome::Success( Req {
-            uri: request.uri().to_string()
-        })
+    fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error> {
+        rocket::Outcome::Success(Req { uri: request.uri().to_string() })
     }
 }
 
 #[derive(Serialize)]
-pub struct Context<'a, F> where F : 'a + Serialize {
+pub struct Context<P>
+    where P: Serialize + Default
+{
     pub req: Req,
+    pub page: P,
     pub site: Site,
-    pub page: Page,
-    pub layout: &'static str,
-    pub form: &'a F
 }
 
-impl <'a,F> Context<'a,F> where F : 'a + Serialize {
-  pub fn new(req: Req, form: &'a F) -> Context<'a,F> {
-      Context::<F> {
-          req: req,
-          form: form,
-          site: Site::default(),
-          page: Page::default(),
-          layout: "layout"
-      }
-  }
+impl<P> Context<P>
+    where P: Serialize + Default
+{
+    pub fn new(req: Req, page: P) -> Context<P> {
+        Context::<P> {
+            req: req,
+            page: page,
+            site: Site {
+                layout: "layout",
+                ..Site::default()
+            },
+        }
+    }
 }
