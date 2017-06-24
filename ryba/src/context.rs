@@ -3,24 +3,16 @@ use rocket;
 use rocket::request::{self, FromRequest};
 use ryba_kit::form::Field;
 
-#[derive(Serialize, Default)]
-pub struct Form<F>
-    where F: Serialize + Default
-{
-    pub msg: String,
-    pub fields: F,
-}
-
 #[derive(Serialize,FromForm,Default)]
 pub struct Login {
-    name: Field<String>,
-    password: Field<String>,
+    pub name: Field<String>,
+    pub password: Field<String>,
 }
 
 #[derive(Serialize, Default)]
 pub struct Site {
     pub title: String,
-    pub login: Form<Login>,
+    pub login: Login,
     pub layout: &'static str,
 }
 

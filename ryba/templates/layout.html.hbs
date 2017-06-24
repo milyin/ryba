@@ -3,8 +3,17 @@
 <html>
 
 <body>
-    <hr/> {{>dump_context}}
-    <hr/> {{~> page}}
+    <form method="post" action="?login">
+        {{#with site.login}}
+            {{>input label="Name" field=name}}
+            {{>input label="Password" field=password type="password"}}
+        {{/with}}
+        <input type="submit"/>
+    </form>
+    <hr/> 
+    {{~> page}}
+    <hr/> 
+    {{>dump_context}}
 </body>
 
 </html>

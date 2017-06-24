@@ -3,6 +3,7 @@ use ryba_kit::template::*;
 use ryba_kit::form::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
+use pages::*;
 
 #[derive(Serialize,FromForm,Default)]
 struct Register {
@@ -64,5 +65,7 @@ fn post<'a>(req: Req, data: Form<'a, Register>) -> Result<Redirect, Template> {
                                form: form,
                                ..Page::default()
                            });
-    Err(Template::render("register", &ctx))
+    Err(Template::render("register", ctx))
 }
+
+login_handler!(login_post, "/register?login", "register", ());

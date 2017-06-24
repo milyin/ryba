@@ -21,6 +21,10 @@ fn main() {
     init_handlebars(add_helpers);
     add_templates("templates").expect("Failed to read templates");
     rocket::ignite()
-        .mount("/", routes![index::get, register::get, register::post])
+        .mount("/", routes![
+            index::get, index::login_post,
+            register::get, register::post, register::login_post
+        ])
+        
         .launch();
 }
