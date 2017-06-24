@@ -7,5 +7,3 @@ pub fn get(req: Req) -> Template {
     let ctx = Context::new(req, ());
     Template::render("index", &ctx)
 }
-
-login_handler!(login_post, "/?login", "index", ());

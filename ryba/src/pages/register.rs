@@ -67,5 +67,3 @@ fn post<'a>(req: Req, data: Form<'a, Register>) -> Result<Redirect, Template> {
                            });
     Err(Template::render("register", ctx))
 }
-
-login_handler!(login_post, "/register?login", "register", ());

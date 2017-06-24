@@ -11,6 +11,15 @@ pub struct Field<T> {
     msg: Option<String>,
 }
 
+impl<T> Field<T> {
+    pub fn new(value: T) -> Field<T> {
+        Field {
+            value: Ok(value),
+            msg: None
+        }
+    }
+}
+
 impl<T> Default for Field<T>
     where T: Default
 {

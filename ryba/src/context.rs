@@ -7,6 +7,7 @@ use ryba_kit::form::Field;
 pub struct Login {
     pub name: Field<String>,
     pub password: Field<String>,
+    pub redirect: Field<String>,
 }
 
 #[derive(Serialize, Default)]
@@ -41,11 +42,16 @@ impl<P> Context<P>
     where P: Serialize + Default
 {
     pub fn new(req: Req, page: P) -> Context<P> {
+        let uri = req.uri.clone();
         Context::<P> {
             req: req,
             page: page,
             site: Site {
                 layout: "layout",
+                login: Login {
+                    redirect: Field::new(uri),
+                    ..Login::default()
+                },
                 ..Site::default()
             },
         }

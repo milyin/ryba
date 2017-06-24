@@ -3,13 +3,13 @@
 <html>
 
 <body>
-    <form method="post" action="?login">
-        {{#with site.login}}
-            {{>input label="Name" field=name}}
-            {{>input label="Password" field=password type="password"}}
-        {{/with}}
-        <input type="submit"/>
-    </form>
+
+    {{#if no_login_form}}
+    No login form
+    {{else}}
+    {{>login_form}}
+    {{/if}}
+
     <hr/> 
     {{~> page}}
     <hr/> 
