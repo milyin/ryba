@@ -1,6 +1,0 @@
-{% macro input(field) %}
-<input type="{{field.control.type}}" name="{{field.name}}" value="{{field.value}}"/>
-{% if field.msg %}
-<span style="color: red">{{ field.msg }}</span>
-{% endif %}
-{% endmacro input %}

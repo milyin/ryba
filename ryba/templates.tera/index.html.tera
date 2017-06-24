@@ -1,2 +1,0 @@
-{% extends "layout" %}
-{% block body %}FOO BAR BUZZ <br/> {{ super() }} {% endblock body %}
