@@ -6,7 +6,7 @@ use rocket::response::Redirect;
 use pages::*;
 
 #[derive(Serialize,FromForm,Default)]
-struct Register {
+pub struct Register {
     name: Field<String>,
     age: Field<Age>,
     password: Field<String>,
@@ -14,7 +14,7 @@ struct Register {
 }
 
 #[derive(Serialize)]
-struct Page {
+pub struct Page {
     title: &'static str,
     form: Register,
 }
@@ -49,21 +49,16 @@ impl<'v> FromFormValue<'v> for Age {
 }
 
 #[get("/register")]
-pub fn get(req: Req) -> Template {
-    let ctx = Context::new(req, Page::default());
+pub fn get(ctx: Context<Page>) -> Template {
     Template::render("register", &ctx)
 }
 
 #[post("/register", data="<data>")]
-fn post<'a>(req: Req, data: Form<'a, Register>) -> Result<Redirect, Template> {
+fn post<'a>(mut ctx: Context<Page>, data: Form<'a, Register>) -> Result<Redirect, Template> {
     let mut form = data.into_inner();
     if form.password.get() != form.password1.get() {
         form.password1.set_msg("password not match".to_string());
     }
-    let ctx = Context::new(req,
-                           Page {
-                               form: form,
-                               ..Page::default()
-                           });
+    ctx.page.form = form;
     Err(Template::render("register", ctx))
 }

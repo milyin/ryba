@@ -3,7 +3,6 @@ use ryba_kit::template::*;
 use pages::*;
 
 #[get("/")]
-pub fn get(req: Req) -> Template {
-    let ctx = Context::new(req, ());
+pub fn get(ctx: Context<()>) -> Template {
     Template::render("index", &ctx)
 }

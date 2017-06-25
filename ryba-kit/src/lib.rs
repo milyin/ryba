@@ -2,6 +2,7 @@
 
 extern crate serde;
 extern crate rocket;
+#[macro_use]
 extern crate serde_derive;
 extern crate handlebars;
 #[macro_use]
@@ -15,3 +16,4 @@ extern crate serde_json;
 pub mod form;
 pub mod template;
 pub mod helpers;
+pub mod auth;
