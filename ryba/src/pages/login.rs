@@ -4,7 +4,7 @@ use ryba_kit::form::*;
 use ryba_kit::auth::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
-use rocket::http::Cookies;
+use rocket::http::{Cookie, Cookies};
 use rocket::State;
 use pages::*;
 use Users;
@@ -26,22 +26,26 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/login", data="<data>")]
-fn post<'a>(users: State<Users>,
+fn post<'a>(mut users: State<Users>,
             cookies: &Cookies,
             mut ctx: Context<Page>,
             data: Form<'a, Login>)
             -> Result<Redirect, Template> {
     let mut form = data.into_inner();
-    if let Ok(user_name) = form.name.get() {
+    if let (&Ok(ref user_name), &Ok(ref password), &Ok(ref redirect)) =
+        (&form.name.value, &form.password.value, &form.redirect.value) {
         match users.get(user_name) {
-            Some(ref password) if Ok(password) == form.password.get() => {
-                cookies.insert("user_name", user_name);
-                cookies.insert("hash",
-                               Session::hash(user_name, ctx.session.extra_data, password));
-                return Ok(Redirect::to(form.redirect.get().unwrap_or("/login")));
+            Some(correct_password) if password == correct_password => {
+                cookies.add(Cookie::new("user_name", user_name.clone()));
+                cookies.add(Cookie::new("hash",
+                                        Session::hash(user_name,
+                                                      &ctx.session.extra_data,
+                                                      password)
+                                                .to_string()));
+                return Ok(Redirect::to(redirect));
             }
-            Some(_) => form.password.set_msg("wrong password".to_string()),
-            None => form.name.set_msg("user not found".to_string()),
+            Some(_) => form.password.msg = Some("wrong password".to_string()),
+            None => form.name.msg = Some("user not found".to_string()),
         }
     }
     ctx.site.login = form;

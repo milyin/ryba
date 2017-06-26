@@ -7,8 +7,8 @@ use rocket::http::uri::*;
 
 #[derive(Debug)]
 pub struct Field<T> {
-    value: Result<T, String>,
-    msg: Option<String>,
+    pub value: Result<T, String>,
+    pub msg: Option<String>,
 }
 
 impl<T> Field<T> {
@@ -86,6 +86,15 @@ impl<T> Field<T> {
     }
     pub fn get(&self) -> Result<&T, &String> {
         self.value.as_ref()
+    }
+    pub fn get_ok(&self) -> Option<&T> {
+        if let Ok(ref v) = self.value {
+            Some(v)
+        }
+        else
+        {
+            None
+        }
     }
     pub fn set_msg(&mut self, msg: String) {
         self.msg = Some(msg)
