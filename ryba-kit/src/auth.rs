@@ -24,17 +24,23 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 }
 
 impl Session {
-    pub fn new(user_name: String, extra_data: String, password: &str) -> Session {
-        let hash = calculate_hash(&SessionData {
-                user_name: &user_name,
-                extra_data: &extra_data,
+    pub fn hash(user_name: &str, extra_data: &str, password: &str) -> u64 {
+        calculate_hash(&SessionData {
+                user_name: user_name,
+                extra_data: extra_data,
                 password: password,
-        });
+        })
+    }
+    pub fn new(user_name: String, extra_data: String, password: &str) -> Session {
+        let hash = Session::hash(&user_name, &extra_data, password);
         Session {
             user_name: Some(user_name),
             extra_data: extra_data,
             hash: Some(hash)
         }
+    }
+    pub fn check(&self, user_name: &str, extra_data: &str, password: &str) -> bool {
+         self.hash == Some(Session::hash(user_name, extra_data, password))
     }
 }
 

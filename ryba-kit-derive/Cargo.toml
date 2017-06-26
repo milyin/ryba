@@ -6,7 +6,6 @@ authors = ["Michael.Ilyin <milyin@gmail.com>"]
 [dependencies]
 quote="*"
 syn="*"
-itertools="*"
 
 [lib]
 proc-macro=true

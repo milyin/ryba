@@ -11,7 +11,7 @@ extern crate serde_derive;
 #[macro_use]
 extern crate ryba_kit_derive;
 
-type Users = HashMap<String,u64>;
+type Users = HashMap<String,String>;
 
 mod context;
 mod pages;

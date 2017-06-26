@@ -1,9 +1,10 @@
 use context::*;
 use ryba_kit::template::*;
 use ryba_kit::form::*;
+use ryba_kit::auth::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
-use rocket::http::{Cookies};
+use rocket::http::Cookies;
 use rocket::State;
 use pages::*;
 use Users;
@@ -25,23 +26,24 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/login", data="<data>")]
-fn post<'a>(users: State<Users>, cookies: &Cookies, mut ctx: Context<Page>, data: Form<'a, Login>) -> Result<Redirect, Template> {
+fn post<'a>(users: State<Users>,
+            cookies: &Cookies,
+            mut ctx: Context<Page>,
+            data: Form<'a, Login>)
+            -> Result<Redirect, Template> {
     let mut form = data.into_inner();
-
-    let test_name: String = "foo".to_string();
-    let test_password: String = "bar".to_string();
-
-    if form.name.is_ok() && form.password.is_ok() {
-        if form.name.get() != Ok(&test_name) {
-            form.name.set_msg("user not found".to_string());
-        } else if form.password.get() != Ok(&test_password) {
-            form.password.set_msg("password not match".to_string());
-        } else  {
-            let url = form.redirect.get().ok().map_or("/", |s| &s);
-            return Ok(Redirect::to(url));
+    if let Ok(user_name) = form.name.get() {
+        match users.get(user_name) {
+            Some(ref password) if Ok(password) == form.password.get() => {
+                cookies.insert("user_name", user_name);
+                cookies.insert("hash",
+                               Session::hash(user_name, ctx.session.extra_data, password));
+                return Ok(Redirect::to(form.redirect.get().unwrap_or("/login")));
+            }
+            Some(_) => form.password.set_msg("wrong password".to_string()),
+            None => form.name.set_msg("user not found".to_string()),
         }
     }
-
     ctx.site.login = form;
     Err(Template::render("login", ctx))
 }
