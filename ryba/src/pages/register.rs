@@ -4,8 +4,10 @@ use ryba_kit::form::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
 use pages::*;
+use rocket::State;
+use Users;
 
-#[derive(Serialize,FromForm,Default)]
+#[derive(Serialize,FromForm,Default,FieldForm)]
 pub struct Register {
     name: Field<String>,
     age: Field<Age>,
@@ -54,11 +56,18 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/register", data="<data>")]
-fn post<'a>(mut ctx: Context<Page>, data: Form<'a, Register>) -> Result<Redirect, Template> {
+fn post<'a>(users: State<Users>, mut ctx: Context<Page>, data: Form<'a, Register>) -> Result<Redirect, Template> {
     let mut form = data.into_inner();
     if form.password.get() != form.password1.get() {
         form.password1.set_msg("password not match".to_string());
     }
-    ctx.page.form = form;
-    Err(Template::render("register", ctx))
+    if form.is_err() || form.has_msg()
+    {
+        ctx.page.form = form;
+        Err(Template::render("register", ctx))
+    }
+    else
+    {
+        Ok(Redirect::to("/"))
+    }
 }

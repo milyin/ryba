@@ -7,6 +7,7 @@ authors = ["Michael.Ilyin <milyin@gmail.com>"]
 serde="*"
 serde_derive="*"
 ryba-kit = { path = "../ryba-kit" }
+ryba-kit-derive = { path = "../ryba-kit-derive" }
 rocket = "0.2.8"
 rocket_codegen = "0.2.8"
 handlebars="*"

@@ -3,8 +3,10 @@ use ryba_kit::template::*;
 use ryba_kit::form::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
-use rocket::http::{Cookie, Cookies};
+use rocket::http::{Cookies};
+use rocket::State;
 use pages::*;
+use Users;
 
 #[derive(Serialize)]
 pub struct Page {
@@ -23,7 +25,7 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/login", data="<data>")]
-fn post<'a>(cookies: Cookies, mut ctx: Context<Page>, data: Form<'a, Login>) -> Result<Redirect, Template> {
+fn post<'a>(users: State<Users>, cookies: &Cookies, mut ctx: Context<Page>, data: Form<'a, Login>) -> Result<Redirect, Template> {
     let mut form = data.into_inner();
 
     let test_name: String = "foo".to_string();

@@ -1,0 +1,12 @@
+[package]
+name = "ryba-kit-derive"
+version = "0.1.0"
+authors = ["Michael.Ilyin <milyin@gmail.com>"]
+
+[dependencies]
+quote="*"
+syn="*"
+itertools="*"
+
+[lib]
+proc-macro=true

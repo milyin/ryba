@@ -91,3 +91,9 @@ impl<T> Field<T> {
         self.msg = Some(msg)
     }
 }
+
+pub trait FieldForm {
+    fn is_ok(&self) -> bool;
+    fn is_err(&self) -> bool { !self.is_ok() }
+    fn has_msg(&self) -> bool;
+}

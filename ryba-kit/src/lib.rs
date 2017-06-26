@@ -1,4 +1,5 @@
 #![feature(decl_macro, never_type)]
+#![crate_type = "proc-macro"]
 
 extern crate serde;
 extern crate rocket;
