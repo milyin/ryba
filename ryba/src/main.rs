@@ -11,6 +11,7 @@ extern crate serde_derive;
 #[macro_use]
 extern crate ryba_kit_derive;
 
+use std::sync::Mutex;
 type Users = HashMap<String,String>;
 
 mod context;
@@ -26,11 +27,11 @@ fn main() {
     init_handlebars(add_helpers);
     add_templates("templates").expect("Failed to read templates");
     rocket::ignite()
-        .manage(Users::new())
         .mount("/", routes![
             index::get,
             register::get, register::post,
             login::get, login::post
         ])
+        .manage(Mutex::new(Users::new()))
         .launch();
 }

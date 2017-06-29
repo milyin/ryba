@@ -6,32 +6,62 @@ use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
 use pages::*;
 use rocket::State;
+use std::sync::Mutex;
 use Users;
 
-#[derive(Serialize,FromForm,Default,FieldForm)]
-pub struct Register {
-    name: Field<String>,
-    age: Field<Age>,
-    password: Field<String>,
-    password1: Field<String>,
+#[derive(FromForm)]
+pub struct Register<'a> {
+    name: FormField<'a, String>,
+    age: FormField<'a, Age>,
+    password: FormField<'a, String>,
+    password1: FormField<'a, String>,
+}
+
+#[derive(Serialize,Default)]
+pub struct RegisterContext {
+    name: ContextField<String>,
+    age: ContextField<Age>,
+    password: ContextField<String>,
+    password1: ContextField<String>,
+}
+
+impl<'a> Register<'a> {
+    fn context(&'a self) -> RegisterContext {
+        RegisterContext {
+            name: (&self.name).into(),
+            age: (&self.age).into(),
+            password: (&self.password).into(),
+            password1: (&self.password1).into(),
+        }
+    }
+    fn values(&'a self) -> Option<(&'a String, &'a Age, &'a String, &'a String)> {
+        if let (&Ok(ref name), &Ok(ref age), &Ok(ref password), &Ok(ref password1)) = 
+            (&self.name.value, &self.age.value, &self.password.value, &self.password1.value) {
+            Some((name,age,password,password1))
+        }
+        else
+        {
+            None
+        }
+    }
 }
 
 #[derive(Serialize)]
 pub struct Page {
     title: &'static str,
-    form: Register,
+    form: RegisterContext,
 }
 
 impl Default for Page {
     fn default() -> Page {
         Self {
             title: "Registration",
-            form: Register::default(),
+            form: RegisterContext::default(),
         }
     }
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Copy, Clone)]
 struct Age(usize);
 
 impl<'v> FromFormValue<'v> for Age {
@@ -57,24 +87,30 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/register", data="<data>")]
-fn post<'a>(mut users: State<Users>,
+fn post<'a>(mut _users: State<Mutex<Users>>,
             mut ctx: Context<Page>,
-            data: Form<'a, Register>)
-            -> Result<Redirect, Template> {
-    let mut form = data.into_inner();
-    if form.password.get() != form.password1.get() {
-        form.password1.set_msg("password not match".to_string());
-    }
-    if form.is_ok() && !form.has_msg() {
-        if let (&Ok(ref name), &Ok(ref password)) = (&form.name.value, &form.password.value) {
-            if users.get(name) != None {
-                form.name.msg = Some("user exists".to_string());
-            } else {
-                //users.insert(name.clone(), password.clone());
-                return Ok(Redirect::to("/"));
-            }
+            data: Form<'a, Register<'a>>)
+            -> Result<Redirect, Template>
+{
+    let mut users = match _users.inner().lock() {
+        Ok(users) => users,
+        Err(e) => return Ok(Redirect::to("/error"))
+    };
+
+    let form = data.get();
+    ctx.page.form = form.context();
+
+    if let Some((name,age,password,password1)) = form.values() {
+        if password != password1 {
+            ctx.page.form.password.msg = Some("password not match".to_string())
+        }
+        if users.get(name) != None {
+            ctx.page.form.name.msg = Some("user exists".to_string());
+        } else {
+            users.insert(name.clone(), password.clone());
+            return Ok(Redirect::to("/"));
         }
     }
-    ctx.page.form = form;
+
     Err(Template::render("register", ctx))
 }

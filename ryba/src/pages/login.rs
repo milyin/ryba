@@ -8,6 +8,7 @@ use rocket::http::{Cookie, Cookies};
 use rocket::State;
 use pages::*;
 use Users;
+use std::sync::Mutex;
 
 #[derive(Serialize)]
 pub struct Page {
@@ -25,13 +26,15 @@ pub fn get(ctx: Context<Page>) -> Template {
     Template::render("login", &ctx)
 }
 
+
 #[post("/login", data="<data>")]
-fn post<'a>(mut users: State<Users>,
+fn post<'a>(users: State<Mutex<Users>>,
             cookies: &Cookies,
             mut ctx: Context<Page>,
             data: Form<'a, Login>)
-            -> Result<Redirect, Template> {
-    let mut form = data.into_inner();
+            -> Result<Redirect, Template> 
+{
+/*    let mut form = data.into_inner();
     if let (&Ok(ref user_name), &Ok(ref password), &Ok(ref redirect)) =
         (&form.name.value, &form.password.value, &form.redirect.value) {
         match users.get(user_name) {
@@ -47,7 +50,7 @@ fn post<'a>(mut users: State<Users>,
             Some(_) => form.password.msg = Some("wrong password".to_string()),
             None => form.name.msg = Some("user not found".to_string()),
         }
-    }
-    ctx.site.login = form;
+    }*/
+   // ctx.site.login = form;
     Err(Template::render("login", ctx))
 }
