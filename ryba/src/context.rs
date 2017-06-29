@@ -1,20 +1,47 @@
 use serde::ser::Serialize;
 use rocket;
 use rocket::request::{self, FromRequest};
-use ryba_kit::form::Field;
+use ryba_kit::form::{Field,ContextField};
 use ryba_kit::auth::Session;
 
-#[derive(Serialize,FromForm,Default)]
-pub struct Login {
-    pub name: Field<String>,
-    pub password: Field<String>,
-    pub redirect: Field<String>,
+#[derive(FromForm)]
+pub struct Login<'a> {
+    pub name: Field<'a, String>,
+    pub password: Field<'a, String>,
+    pub redirect: Field<'a, String>,
+}
+
+#[derive(Serialize,Default)]
+pub struct LoginContext {
+    pub name: ContextField<String>,
+    pub password: ContextField<String>,
+    pub redirect: ContextField<String>,
+}
+
+impl<'a> Login<'a> {
+    fn context(&'a self) -> LoginContext {
+        LoginContext {
+            name: (&self.name).into(),
+            password: (&self.password).into(),
+            redirect: (&self.redirect).into(),
+        }
+    }
+    fn values(&'a self) -> Option<(&'a String, &'a String, &'a String)> {
+        if let (&Ok(ref name), &Ok(ref password), &Ok(ref redirect)) = 
+            (&self.name.value, &self.password.value, &self.redirect.value) {
+            Some((name,password,redirect))
+        }
+        else
+        {
+            None
+        }
+    }
 }
 
 #[derive(Serialize, Default)]
 pub struct Site {
     pub title: String,
-    pub login: Login,
+    pub login: LoginContext,
     pub layout: &'static str,
 }
 
@@ -47,9 +74,12 @@ impl<'a, 'r, P> FromRequest<'a, 'r> for Context<P>
                 page: P::default(),
                 site: Site {
                     layout: "layout",
-                    login: Login {
-                        redirect: Field::new(request.uri().to_string()),
-                        ..Login::default()
+                    login: LoginContext {
+                        redirect: ContextField::<String> {
+                            value: Ok(request.uri().to_string()),
+                            msg: None
+                        },
+                        ..LoginContext::default()
                     },
                     ..Site::default()
                 },

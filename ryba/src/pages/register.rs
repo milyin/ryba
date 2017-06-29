@@ -11,10 +11,10 @@ use Users;
 
 #[derive(FromForm)]
 pub struct Register<'a> {
-    name: FormField<'a, String>,
-    age: FormField<'a, Age>,
-    password: FormField<'a, String>,
-    password1: FormField<'a, String>,
+    name: Field<'a, String>,
+    age: Field<'a, Age>,
+    password: Field<'a, String>,
+    password1: Field<'a, String>,
 }
 
 #[derive(Serialize,Default)]

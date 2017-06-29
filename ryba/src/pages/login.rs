@@ -31,7 +31,7 @@ pub fn get(ctx: Context<Page>) -> Template {
 fn post<'a>(users: State<Mutex<Users>>,
             cookies: &Cookies,
             mut ctx: Context<Page>,
-            data: Form<'a, Login>)
+            data: Form<'a, Login<'a>>)
             -> Result<Redirect, Template> 
 {
 /*    let mut form = data.into_inner();
