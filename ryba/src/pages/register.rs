@@ -9,41 +9,12 @@ use rocket::State;
 use std::sync::Mutex;
 use Users;
 
-#[derive(FromForm)]
+#[derive(FromForm,ToContext)]
 pub struct Register<'a> {
     name: Field<'a, String>,
     age: Field<'a, Age>,
     password: Field<'a, String>,
     password1: Field<'a, String>,
-}
-
-#[derive(Serialize,Default)]
-pub struct RegisterContext {
-    name: ContextField<String>,
-    age: ContextField<Age>,
-    password: ContextField<String>,
-    password1: ContextField<String>,
-}
-
-impl<'a> Register<'a> {
-    fn context(&'a self) -> RegisterContext {
-        RegisterContext {
-            name: (&self.name).into(),
-            age: (&self.age).into(),
-            password: (&self.password).into(),
-            password1: (&self.password1).into(),
-        }
-    }
-    fn values(&'a self) -> Option<(&'a String, &'a Age, &'a String, &'a String)> {
-        if let (&Ok(ref name), &Ok(ref age), &Ok(ref password), &Ok(ref password1)) = 
-            (&self.name.value, &self.age.value, &self.password.value, &self.password1.value) {
-            Some((name,age,password,password1))
-        }
-        else
-        {
-            None
-        }
-    }
 }
 
 #[derive(Serialize)]

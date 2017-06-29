@@ -4,38 +4,11 @@ use rocket::request::{self, FromRequest};
 use ryba_kit::form::{Field,ContextField};
 use ryba_kit::auth::Session;
 
-#[derive(FromForm)]
+#[derive(FromForm,ToContext)]
 pub struct Login<'a> {
     pub name: Field<'a, String>,
     pub password: Field<'a, String>,
     pub redirect: Field<'a, String>,
-}
-
-#[derive(Serialize,Default)]
-pub struct LoginContext {
-    pub name: ContextField<String>,
-    pub password: ContextField<String>,
-    pub redirect: ContextField<String>,
-}
-
-impl<'a> Login<'a> {
-    fn context(&'a self) -> LoginContext {
-        LoginContext {
-            name: (&self.name).into(),
-            password: (&self.password).into(),
-            redirect: (&self.redirect).into(),
-        }
-    }
-    fn values(&'a self) -> Option<(&'a String, &'a String, &'a String)> {
-        if let (&Ok(ref name), &Ok(ref password), &Ok(ref redirect)) = 
-            (&self.name.value, &self.password.value, &self.redirect.value) {
-            Some((name,password,redirect))
-        }
-        else
-        {
-            None
-        }
-    }
 }
 
 #[derive(Serialize, Default)]
