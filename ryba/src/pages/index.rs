@@ -7,16 +7,14 @@ use Users;
 
 #[derive(Serialize, Default)]
 pub struct Page {
-    pub users: Users
+    pub users: Users,
 }
 
 #[get("/")]
-pub fn get(
-    _users: State<Mutex<Users>>,
-    mut ctx: Context<Page>) -> Template 
-{
-    if let Ok(guard) = _users.inner().lock() {
-        ctx.page.users = guard.clone();
+pub fn get(_users: State<Mutex<Users>>, mut ctx: Context<Page>) -> Template {
+    if let Ok(users) = _users.inner().lock() {
+        ctx.session.check(&users);
+        ctx.page.users = users.clone();
     }
     Template::render("index", &ctx)
 }
