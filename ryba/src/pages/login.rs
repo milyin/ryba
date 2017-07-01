@@ -28,29 +28,28 @@ pub fn get(ctx: Context<Page>) -> Template {
 
 
 #[post("/login", data="<data>")]
-fn post<'a>(users: State<Mutex<Users>>,
+fn post<'a>(_users: State<Mutex<Users>>,
             cookies: &Cookies,
             mut ctx: Context<Page>,
             data: Form<'a, Login<'a>>)
-            -> Result<Redirect, Template> 
-{
-/*    let mut form = data.into_inner();
-    if let (&Ok(ref user_name), &Ok(ref password), &Ok(ref redirect)) =
-        (&form.name.value, &form.password.value, &form.redirect.value) {
-        match users.get(user_name) {
-            Some(correct_password) if password == correct_password => {
-                cookies.add(Cookie::new("user_name", user_name.clone()));
-                cookies.add(Cookie::new("hash",
-                                        Session::hash(user_name,
-                                                      &ctx.session.extra_data,
-                                                      password)
+            -> Result<Redirect, Template> {
+    if let Ok(users) = _users.inner().lock() {
+        let form = data.get();
+        ctx.site.login = form.context();
+        if let Some((name, password, redirect)) = form.values() {
+            match users.get(name) {
+                Some(correct_password) if password == correct_password => {
+                    cookies.add(Cookie::new("user_name", name.clone()));
+                    cookies.add(Cookie::new("hash",
+                                            hash(name, &ctx.session.client_info, password)
                                                 .to_string()));
-                return Ok(Redirect::to(redirect));
+                    return Ok(Redirect::to(redirect));
+                }
+                Some(_) => ctx.site.login.password.msg = Some("wrong password".to_string()),
+                None => ctx.site.login.name.msg = Some("User not found".to_string()),
             }
-            Some(_) => form.password.msg = Some("wrong password".to_string()),
-            None => form.name.msg = Some("user not found".to_string()),
+
         }
-    }*/
-   // ctx.site.login = form;
+    }
     Err(Template::render("login", ctx))
 }
