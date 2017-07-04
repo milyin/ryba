@@ -27,6 +27,7 @@ impl<'a, T: FromFormValue<'a>> FromFormValue<'a> for Field<'a, T>
     }
 }
 
+#[derive(Debug)]
 pub struct ContextField<T> {
     pub value: Result<T, String>,
     pub msg: Option<String>,

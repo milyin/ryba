@@ -3,6 +3,7 @@ use rocket;
 use rocket::request::{self, FromRequest};
 use ryba_kit::form::{Field, ContextField};
 use ryba_kit::auth::hash;
+use std::fmt::Debug;
 use Users;
 
 #[derive(FromForm,ToContext)]
@@ -12,31 +13,29 @@ pub struct Login<'a> {
     pub redirect: Field<'a, String>,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default,Debug)]
 pub struct Site {
     pub title: String,
     pub login: LoginContext,
     pub layout: &'static str,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize,Debug)]
 pub struct Req {
     pub uri: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize,Debug)]
 pub struct Session {
     pub user_name: Option<String>,
     pub client_info: String,
     pub client_hash: Option<u64>,
     pub server_hash: Option<u64>,
+    pub logged_in: bool,
 }
 
 impl Session {
-    pub fn is_ok(&self) -> bool {
-        self.client_hash.is_some() && self.client_hash == self.server_hash
-    }
-    pub fn check(&mut self, users: &Users) {
+    pub fn check(&mut self, users: &Users) -> bool {
         self.server_hash = self.user_name
             .clone()
             .and_then(|user_name| {
@@ -44,10 +43,13 @@ impl Session {
                               .get(&user_name)
                               .map(|password| hash(&user_name, &self.client_info, &password))
                       });
+        self.logged_in = self.client_hash.is_some() && self.client_hash == self.server_hash;
+        println!("{:?}", self.logged_in);
+        self.logged_in
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize,Debug)]
 pub struct Context<P>
     where P: Serialize + Default
 {
@@ -74,7 +76,7 @@ fn get_client_info(request: &rocket::Request) -> String {
 }
 
 impl<'a, 'r, P> FromRequest<'a, 'r> for Context<P>
-    where P: Serialize + Default
+    where P: Serialize + Default + Debug
 {
     type Error = ();
     fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error> {
@@ -88,6 +90,7 @@ impl<'a, 'r, P> FromRequest<'a, 'r> for Context<P>
                                                                                       v.parse().ok()
                                                                                   }),
                                          server_hash: None,
+                                         logged_in: false,
                                      },
                                      page: P::default(),
                                      site: Site {

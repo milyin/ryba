@@ -17,7 +17,7 @@ pub struct Register<'a> {
     password1: Field<'a, String>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize,Debug)]
 pub struct Page {
     title: &'static str,
     form: RegisterContext,
@@ -32,7 +32,7 @@ impl Default for Page {
     }
 }
 
-#[derive(Serialize, Default, Copy, Clone)]
+#[derive(Serialize, Default, Copy, Clone, Debug)]
 struct Age(usize);
 
 impl<'v> FromFormValue<'v> for Age {
@@ -61,17 +61,16 @@ pub fn get(ctx: Context<Page>) -> Template {
 fn post<'a>(mut _users: State<Mutex<Users>>,
             mut ctx: Context<Page>,
             data: Form<'a, Register<'a>>)
-            -> Result<Redirect, Template>
-{
+            -> Result<Redirect, Template> {
     let mut users = match _users.inner().lock() {
         Ok(users) => users,
-        Err(e) => return Ok(Redirect::to("/error"))
+        Err(e) => return Ok(Redirect::to("/error")),
     };
 
     let form = data.get();
     ctx.page.form = form.context();
 
-    if let Some((name,age,password,password1)) = form.values() {
+    if let Some((name, age, password, password1)) = form.values() {
         if password != password1 {
             ctx.page.form.password.msg = Some("password not match".to_string())
         }

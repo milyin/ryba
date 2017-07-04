@@ -8,6 +8,8 @@ enum Kind {
     Array,
     String,
     Number,
+    Boolean,
+    Null,
 }
 
 struct IsKind {
@@ -21,7 +23,9 @@ impl HelperDef for IsKind {
         match if self.kind == Kind::Object && param.value().is_object() ||
                  self.kind == Kind::Array && param.value().is_array() ||
                  self.kind == Kind::String && param.value().is_string() ||
-                 self.kind == Kind::Number && param.value().is_number() {
+                 self.kind == Kind::Number && param.value().is_number() ||
+                 self.kind == Kind::Boolean && param.value().is_boolean() ||
+                 self.kind == Kind::Null && param.value().is_null() {
                   h.template()
               } else {
                   h.inverse()
@@ -69,6 +73,8 @@ pub fn add_helpers(hb: &mut Handlebars) {
     hb.register_helper("if_array", Box::new(IsKind { kind: Kind::Array }));
     hb.register_helper("if_string", Box::new(IsKind { kind: Kind::String }));
     hb.register_helper("if_number", Box::new(IsKind { kind: Kind::Number }));
+    hb.register_helper("if_boolean", Box::new(IsKind { kind: Kind::Boolean }));
+    hb.register_helper("if_null", Box::new(IsKind { kind: Kind::Null }));
     hb.register_helper("include", Box::new(include_helper));
     hb.register_decorator("annotate", Box::new(annotate_decorator));
 }

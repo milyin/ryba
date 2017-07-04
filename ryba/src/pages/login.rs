@@ -10,7 +10,7 @@ use pages::*;
 use Users;
 use std::sync::Mutex;
 
-#[derive(Serialize)]
+#[derive(Serialize,Debug)]
 pub struct Page {
     title: &'static str,
 }

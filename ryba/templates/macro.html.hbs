@@ -9,14 +9,31 @@
               </li>
           {{/each}}
       </ul>
+  {{else}}
+    {{#if_array this}}
+        {{#each this}}
+            <li> {{@index}}: {{>dump_context}} </li>
+        {{/each}}
+    {{else}}
+      {{#if_string this}} 
+        "{{this}}"
+      {{else}}
+        {{#if_number this}} 
+          {{this}} 
+        {{else}}
+          {{#if_boolean this}}
+            {{this}}
+          {{else}}
+            {{#if_null this}}
+              Null
+            {{else}}
+              Unknown type
+            {{/if_null}}
+          {{/if_boolean}}
+        {{/if_number}}
+      {{/if_string}}
+    {{/if_array}}
   {{/if_object}}
-  {{#if_array this}}
-      {{#each this}}
-          <li> {{@index}}: {{>dump_context}} </li>
-      {{/each}}
-  {{/if_array}}
-  {{#if_string this}} "{{this}}" {{/if_string}}
-  {{#if_number this}} {{this}} {{/if_number}}
 {{/inline}}
 
 {{#*inline "input"}}
@@ -32,12 +49,18 @@
 {{/inline}}
 
 {{#*inline "login_form"}}
-  <form method="post" action="/login">
-    {{#with site.login}}
-      {{>input label="Name" field=name}}
-      {{>input label="Password" field=password type="password"}}
-      {{>input field=redirect type="hidden"}}
-    {{/with}}
-    <input type="submit"/>
-  </form>
+  {{#if session.logged_in}}
+  <div>
+    Logged as {{session.user_name}}
+  </div>
+  {{else}}
+    <form method="post" action="/login">
+      {{#with site.login}}
+        {{>input label="Name" field=name}}
+        {{>input label="Password" field=password type="password"}}
+        {{>input field=redirect type="hidden"}}
+      {{/with}}
+      <input type="submit"/>
+    </form>
+  {{/if}}
 {{/inline}}

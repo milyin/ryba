@@ -69,7 +69,7 @@ fn impl_to_context(ast: &mut syn::MacroInput) -> quote::Tokens {
                     }
                 }
             }
-            #[derive(Serialize, Default)]
+            #[derive(Serialize, Default, Debug)]
             pub struct #ctx_name {
                 #( #ctx_fields ),*
             }

@@ -5,7 +5,7 @@ use rocket::State;
 use std::sync::Mutex;
 use Users;
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct Page {
     pub users: Users,
 }
