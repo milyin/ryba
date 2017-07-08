@@ -4,7 +4,7 @@ use rocket::request::{self, FromRequest};
 use ryba_kit::form::{Field, ContextField};
 use ryba_kit::auth::hash;
 use std::fmt::Debug;
-use Users;
+use users::*;
 
 #[derive(FromForm,ToContext)]
 pub struct Login<'a> {
@@ -35,17 +35,14 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn check(&mut self, users: &Users) -> bool {
+    pub fn check(&mut self) {
         self.server_hash = self.user_name
-            .clone()
+            .clone() // TODO:: how to remove it?
             .and_then(|user_name| {
-                          users
-                              .get(&user_name)
+                          get_user(&user_name)
                               .map(|password| hash(&user_name, &self.client_info, &password))
                       });
         self.logged_in = self.client_hash.is_some() && self.client_hash == self.server_hash;
-        println!("{:?}", self.logged_in);
-        self.logged_in
     }
 }
 
@@ -80,30 +77,29 @@ impl<'a, 'r, P> FromRequest<'a, 'r> for Context<P>
 {
     type Error = ();
     fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error> {
-        rocket::Outcome::Success(Context::<P> {
-                                     req: Req { uri: request.uri().to_string() },
-                                     session: Session {
-                                         user_name: get_cookie(request, "user_name"),
-                                         client_info: get_client_info(request),
-                                         client_hash:
-                                             get_cookie(request, "hash").and_then(|v| {
-                                                                                      v.parse().ok()
-                                                                                  }),
-                                         server_hash: None,
-                                         logged_in: false,
-                                     },
-                                     page: P::default(),
-                                     site: Site {
-                                         layout: "layout",
-                                         login: LoginContext {
-                                             redirect: ContextField::<String> {
-                                                 value: Ok(request.uri().to_string()),
-                                                 msg: None,
-                                             },
-                                             ..LoginContext::default()
-                                         },
-                                         ..Site::default()
-                                     },
-                                 })
+        let mut ctx = Context::<P> {
+            req: Req { uri: request.uri().to_string() },
+            session: Session {
+                user_name: get_cookie(request, "user_name"),
+                client_info: get_client_info(request),
+                client_hash: get_cookie(request, "hash").and_then(|v| v.parse().ok()),
+                server_hash: None,
+                logged_in: false,
+            },
+            page: P::default(),
+            site: Site {
+                layout: "layout",
+                login: LoginContext {
+                    redirect: ContextField::<String> {
+                        value: Ok(request.uri().to_string()),
+                        msg: None,
+                    },
+                    ..LoginContext::default()
+                },
+                ..Site::default()
+            },
+        };
+        ctx.session.check();
+        rocket::Outcome::Success(ctx)
     }
 }

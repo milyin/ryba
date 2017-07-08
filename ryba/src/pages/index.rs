@@ -1,20 +1,10 @@
 use context::*;
 use ryba_kit::template::*;
-use pages::*;
-use rocket::State;
-use std::sync::Mutex;
-use Users;
 
 #[derive(Serialize, Default, Debug)]
-pub struct Page {
-    pub users: Users,
-}
+pub struct Page {}
 
 #[get("/")]
-pub fn get(_users: State<Mutex<Users>>, mut ctx: Context<Page>) -> Template {
-    if let Ok(users) = _users.inner().lock() {
-        ctx.session.check(&users);
-        ctx.page.users = users.clone();
-    }
+pub fn get(ctx: Context<Page>) -> Template {
     Template::render("index", &ctx)
 }

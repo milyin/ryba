@@ -11,6 +11,7 @@ ryba-kit-derive = { path = "../ryba-kit-derive" }
 rocket = "0.2.8"
 rocket_codegen = "0.2.8"
 handlebars="*"
+lazy_static="*"
 #rocket = { git = "https://github.com/SergioBenitez/Rocket" }
 #rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
 

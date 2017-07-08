@@ -56,11 +56,13 @@ fn impl_to_context(ast: &mut syn::MacroInput) -> quote::Tokens {
         let field_names5 = field_names1.clone();
         return quote! {
             impl #generics #form_name #generics {
+                #[allow(dead_code)]
                 pub fn context(&self) -> #ctx_name {
                     #ctx_name {
                        #( #field_names1: (&self.#field_names2).into() ),*
                     }
                 }
+                #[allow(dead_code)]
                 pub fn values(&self) -> Option<( #(&#type_names),*  )> {
                     if let ( #(&Ok(ref #field_names3)),* ) = ( #(&self.#field_names4.value),* ) {
                         Some(( #(#field_names5),*))
@@ -69,6 +71,7 @@ fn impl_to_context(ast: &mut syn::MacroInput) -> quote::Tokens {
                     }
                 }
             }
+            #[allow(dead_code)]
             #[derive(Serialize, Default, Debug)]
             pub struct #ctx_name {
                 #( #ctx_fields ),*

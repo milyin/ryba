@@ -1,16 +1,12 @@
 use context::*;
 use ryba_kit::template::*;
 use ryba_kit::form::*;
-use ryba_kit::auth::*;
 use rocket::request::{Form, FromFormValue};
 use rocket::response::Redirect;
-use pages::*;
-use rocket::State;
-use std::sync::Mutex;
-use Users;
+use users::*;
 
 #[derive(FromForm,ToContext)]
-pub struct Register<'a> {
+struct Register<'a> {
     name: Field<'a, String>,
     age: Field<'a, Age>,
     password: Field<'a, String>,
@@ -58,26 +54,16 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/register", data="<data>")]
-fn post<'a>(mut _users: State<Mutex<Users>>,
-            mut ctx: Context<Page>,
-            data: Form<'a, Register<'a>>)
-            -> Result<Redirect, Template> {
-    let mut users = match _users.inner().lock() {
-        Ok(users) => users,
-        Err(e) => return Ok(Redirect::to("/error")),
-    };
-
+fn post<'a>(mut ctx: Context<Page>, data: Form<'a, Register<'a>>) -> Result<Redirect, Template> {
     let form = data.get();
     ctx.page.form = form.context();
 
-    if let Some((name, age, password, password1)) = form.values() {
+    if let Some((name, _, password, password1)) = form.values() {
         if password != password1 {
             ctx.page.form.password.msg = Some("password not match".to_string())
-        }
-        if users.get(name) != None {
-            ctx.page.form.name.msg = Some("user exists".to_string());
+        } else if let Err(msg) = add_user(name, password) {
+            ctx.page.form.name.msg = Some(msg);
         } else {
-            users.insert(name.clone(), password.clone());
             return Ok(Redirect::to("/"));
         }
     }
