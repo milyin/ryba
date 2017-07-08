@@ -23,10 +23,10 @@ pub fn get(ctx: Context<Page>) -> Template {
 }
 
 #[post("/login", data="<data>")]
-fn post<'a>(cookies: &Cookies,
-            mut ctx: Context<Page>,
-            data: Form<'a, Login<'a>>)
-            -> Result<Redirect, Template> {
+fn post_login<'a>(cookies: &Cookies,
+                  mut ctx: Context<Page>,
+                  data: Form<'a, Login<'a>>)
+                  -> Result<Redirect, Template> {
     let form = data.get();
     ctx.site.login = form.context();
     if let Some((name, password, redirect)) = form.values() {
@@ -44,4 +44,15 @@ fn post<'a>(cookies: &Cookies,
         }
     }
     Err(Template::render("login", ctx))
+}
+
+#[post("/logout", data="<data>")]
+fn post_logout<'a>(cookies: &Cookies, data: Form<'a, Login<'a>>) -> Redirect {
+    cookies.remove("user_name");
+    cookies.remove("hash");
+    if let Some((_, _, redirect)) = data.get().values() {
+        Redirect::to(redirect)
+    } else {
+        Redirect::to("/")
+    }
 }

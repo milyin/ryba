@@ -30,6 +30,7 @@ fn main() {
                        register::get,
                        register::post,
                        login::get,
-                       login::post])
+                       login::post_login,
+                       login::post_logout])
         .launch();
 }

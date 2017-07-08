@@ -48,17 +48,29 @@
   </div>
 {{/inline}}
 
+{{#*inline "input_hidden"}}
+   <input name="{{field.@name}}" value="{{field.value}}" type="hidden"/>
+{{/inline}}
+
 {{#*inline "login_form"}}
   {{#if session.logged_in}}
   <div>
     Logged as {{session.user_name}}
+    <form method="post" action="/logout">
+      {{#with site.login}}
+        {{>input_hidden field=name}}
+        {{>input_hidden field=password}}
+        {{>input_hidden field=redirect}}
+      {{/with}}
+       <input type="submit" value="Logout"/>
+    </form>
   </div>
   {{else}}
     <form method="post" action="/login">
       {{#with site.login}}
         {{>input label="Name" field=name}}
         {{>input label="Password" field=password type="password"}}
-        {{>input field=redirect type="hidden"}}
+        {{>input_hidden field=redirect}}
       {{/with}}
       <input type="submit"/>
     </form>
