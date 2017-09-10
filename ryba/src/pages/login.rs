@@ -6,7 +6,7 @@ use rocket::response::Redirect;
 use rocket::http::{Cookie, Cookies};
 use users::*;
 
-#[derive(Serialize,Debug)]
+#[derive(Serialize, Debug)]
 pub struct Page {
     title: &'static str,
 }
@@ -22,20 +22,22 @@ pub fn get(ctx: Context<Page>) -> Template {
     Template::render("login", &ctx)
 }
 
-#[post("/login", data="<data>")]
-fn post_login<'a>(cookies: &Cookies,
-                  mut ctx: Context<Page>,
-                  data: Form<'a, Login<'a>>)
-                  -> Result<Redirect, Template> {
+#[post("/login", data = "<data>")]
+fn post_login<'a>(
+    mut cookies: Cookies,
+    mut ctx: Context<Page>,
+    data: Form<'a, Login<'a>>,
+) -> Result<Redirect, Template> {
     let form = data.get();
     ctx.site.login = form.context();
     if let Some((name, password, redirect)) = form.values() {
         match check_user(name, password) {
             Ok(_) => {
                 cookies.add(Cookie::new("user_name", name.clone()));
-                cookies.add(Cookie::new("hash",
-                                        hash(name, &ctx.session.client_info, password)
-                                            .to_string()));
+                cookies.add(Cookie::new(
+                    "hash",
+                    hash(name, &ctx.session.client_info, password).to_string(),
+                ));
                 return Ok(Redirect::to(redirect));
             }
             Err(msg) => {
@@ -46,10 +48,10 @@ fn post_login<'a>(cookies: &Cookies,
     Err(Template::render("login", ctx))
 }
 
-#[post("/logout", data="<data>")]
-fn post_logout<'a>(cookies: &Cookies, data: Form<'a, Login<'a>>) -> Redirect {
-    cookies.remove("user_name");
-    cookies.remove("hash");
+#[post("/logout", data = "<data>")]
+fn post_logout<'a>(mut cookies: Cookies, data: Form<'a, Login<'a>>) -> Redirect {
+    cookies.remove(Cookie::named("user_name"));
+    cookies.remove(Cookie::named("hash"));
     if let Some((_, _, redirect)) = data.get().values() {
         Redirect::to(redirect)
     } else {

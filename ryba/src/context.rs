@@ -1,31 +1,31 @@
 use serde::ser::Serialize;
 use rocket;
 use rocket::request::{self, FromRequest};
-use ryba_kit::form::{Field, ContextField};
+use ryba_kit::form::{ContextField, Field};
 use ryba_kit::auth::hash;
 use std::fmt::Debug;
 use users::*;
 
-#[derive(FromForm,ToContext)]
+#[derive(FromForm, ToContext)]
 pub struct Login<'a> {
     pub name: Field<'a, String>,
     pub password: Field<'a, String>,
     pub redirect: Field<'a, String>,
 }
 
-#[derive(Serialize, Default,Debug)]
+#[derive(Serialize, Default, Debug)]
 pub struct Site {
     pub title: String,
     pub login: LoginContext,
     pub layout: &'static str,
 }
 
-#[derive(Serialize,Debug)]
+#[derive(Serialize, Debug)]
 pub struct Req {
     pub uri: String,
 }
 
-#[derive(Serialize,Debug)]
+#[derive(Serialize, Debug)]
 pub struct Session {
     pub user_name: Option<String>,
     pub client_info: String,
@@ -46,9 +46,10 @@ impl Session {
     }
 }
 
-#[derive(Serialize,Debug)]
+#[derive(Serialize, Debug)]
 pub struct Context<P>
-    where P: Serialize + Default
+where
+    P: Serialize + Default,
 {
     pub req: Req,
     pub session: Session,
@@ -59,7 +60,7 @@ pub struct Context<P>
 fn get_cookie(request: &rocket::Request, cookie_name: &'static str) -> Option<String> {
     request
         .cookies()
-        .find(cookie_name)
+        .get(cookie_name)
         .map(|cookie| cookie.value().to_string())
 }
 
@@ -73,12 +74,15 @@ fn get_client_info(request: &rocket::Request) -> String {
 }
 
 impl<'a, 'r, P> FromRequest<'a, 'r> for Context<P>
-    where P: Serialize + Default + Debug
+where
+    P: Serialize + Default + Debug,
 {
     type Error = ();
     fn from_request(request: &'a rocket::Request) -> request::Outcome<Self, Self::Error> {
         let mut ctx = Context::<P> {
-            req: Req { uri: request.uri().to_string() },
+            req: Req {
+                uri: request.uri().to_string(),
+            },
             session: Session {
                 user_name: get_cookie(request, "user_name"),
                 client_info: get_client_info(request),

@@ -6,9 +6,12 @@ use itertools::Itertools;
 use std::error::Error;
 use std::borrow::Cow;
 use serde_json::{Value, to_value};
-use rocket::response::{self, Content, Responder};
+use rocket::response::{Responder, Response};
+use rocket::request::Request;
 use rocket::http::ContentType;
+use rocket::http::Status;
 use serde::ser::Serialize;
+use std::io::Cursor;
 
 #[derive(Debug)]
 pub struct Template {
@@ -77,9 +80,12 @@ impl Template {
 }
 
 impl Responder<'static> for Template {
-    fn respond(self) -> response::Result<'static> {
+    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         let hb = HANDLEBARS.lock().unwrap();
-        let render = hb.render(&self.name, &self.value);
-        Content(ContentType::HTML, render).respond()
+        let render = hb.render(&self.name, &self.value).unwrap_or_else(|e| e.to_string());
+        Response::build()
+            .header(ContentType::HTML)
+            .sized_body(Cursor::new(render))
+            .ok()
     }
 }

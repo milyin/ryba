@@ -3,15 +3,13 @@
 
 #[macro_use]
 extern crate lazy_static;
-extern crate ryba_kit;
-extern crate rocket_contrib;
 extern crate rocket;
-extern crate serde;
-extern crate handlebars;
-#[macro_use]
-extern crate serde_derive;
+extern crate ryba_kit;
 #[macro_use]
 extern crate ryba_kit_derive;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 
 mod context;
 mod pages;
@@ -25,12 +23,16 @@ fn main() {
     init_handlebars(add_helpers);
     add_templates("templates").expect("Failed to read templates");
     rocket::ignite()
-        .mount("/",
-               routes![index::get,
-                       register::get,
-                       register::post,
-                       login::get,
-                       login::post_login,
-                       login::post_logout])
+        .mount(
+            "/",
+            routes![
+                index::get,
+                register::get,
+                register::post,
+                login::get,
+                login::post_login,
+                login::post_logout
+            ],
+        )
         .launch();
 }

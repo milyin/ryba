@@ -8,14 +8,14 @@ serde="*"
 serde_derive="*"
 ryba-kit = { path = "../ryba-kit" }
 ryba-kit-derive = { path = "../ryba-kit-derive" }
-rocket = "0.2.8"
-rocket_codegen = "0.2.8"
+rocket = "0.3.2"
+rocket_codegen = "0.3.2"
 handlebars="*"
 lazy_static="*"
 #rocket = { git = "https://github.com/SergioBenitez/Rocket" }
 #rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket" }
 
 [dependencies.rocket_contrib]
-version = "0.2.8"
+version = "0.3.2"
 #git = "https://github.com/SergioBenitez/Rocket"
 #features = ["handlebars_templates", "tera_templates"]
